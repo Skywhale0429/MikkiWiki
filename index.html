@@ -194,7 +194,6 @@
             position: relative;
         }
 
-        /* 앱 설치 상태 표시 바 */
         .app-status-bar {
             display: none;
             background: #ffebee;
@@ -258,6 +257,35 @@
             border: 1px solid #ddd;
         }
 
+        .video-container {
+            width: 100%;
+            max-width: 360px;
+            margin: 15px auto;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
+        }
+
+        .skip-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
         .options-container {
             display: flex;
             flex-direction: column;
@@ -282,7 +310,6 @@
             font-weight: 600;
         }
 
-        /* ENDING BOX STYLES */
         .result-box {
             display: none;
             margin-top: 20px;
@@ -334,7 +361,6 @@
         </header>
 
         <div class="container">
-            <!-- MAIN LIST VIEW -->
             <div id="main-list-view">
                 <h2 class="wiki-header-title">보이스피싱 체험 모의 훈련소</h2>
                 <p>원하시는 보이스피싱 시나리오를 선택하여 직접 음성을 듣고 대처 방안을 선택해 보세요.</p>
@@ -360,25 +386,20 @@
                 </div>
             </div>
 
-            <!-- SIMULATOR VIEW -->
             <div id="simulator-section">
                 <span class="back-to-list" onclick="backToList()">← 목록으로 돌아가기</span>
 
                 <div class="sim-box">
-                    <!-- 앱 설치 여부 알림 바 -->
                     <div id="app-status-bar" class="app-status-bar">
                         ⚠️ [체험 정보] 현재 스마트폰에 악성 배송조회 앱이 설치된 상태입니다. (전화 가로채기 활성화)
                     </div>
 
                     <h2 id="step-title">N1. 집배원의 전화</h2>
                     
-                    <!-- Dynamic Step Area -->
                     <div id="step-content"></div>
 
-                    <!-- Dynamic Options Area -->
                     <div id="options-area" class="options-container"></div>
 
-                    <!-- Dynamic Result/Ending Area -->
                     <div id="result-box" class="result-box"></div>
                 </div>
             </div>
@@ -386,8 +407,7 @@
     </div>
 
     <script>
-        // 전역 상태 변수
-        let isAppInstalled = false; // 악성 앱 설치 여부
+        let isAppInstalled = false;
 
         function showWikiScreen() {
             document.getElementById('intro-screen').style.display = 'none';
@@ -438,7 +458,6 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // 시나리오 데이터 및 노드 로직
         function loadStep(stepId) {
             window.speechSynthesis.cancel();
             updateAppStatusBar();
@@ -524,7 +543,7 @@
                 `;
 
                 addOption(optionsEl, "링크를 눌러 앱을 설치하고 주소를 입력한다", () => {
-                    isAppInstalled = true; // 앱 상태값 활성화
+                    isAppInstalled = true;
                     loadStep('N2B');
                 });
                 addOption(optionsEl, "앱은 좀 그런데요, 그냥 말로 불러드릴게요", () => loadStep('N2B'));
@@ -544,21 +563,43 @@
 
                 addOption(optionsEl, "전화를 받는다", () => {
                     if (isAppInstalled) {
-                        loadStep('N2X'); // 앱이 설치된 경우 가로채진 번호 노드로 이동
+                        loadStep('N2_VIDEO'); // 앱 설치됨: 가로채기 영상 플레이어로 이동
                     } else {
-                        loadStep('N3');  // 앱이 없는 경우 정상 N3 이동
+                        loadStep('N3');
                     }
                 });
 
                 addOption(optionsEl, "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다", () => {
                     if (isAppInstalled) {
-                        loadStep('N2X'); // 앱이 전화를 가로채 사기범에게 연결
+                        loadStep('N2_VIDEO'); // 앱 설치됨: 가로채기 영상 플레이어로 이동
                     } else {
-                        showEnding('A', 'N2B_direct_success'); // 앱 없으면 진짜 검찰청 안내 후 사건 없음 확인
+                        showEnding('A', 'N2B_direct_success');
                     }
                 });
 
                 addOption(optionsEl, "받지 않는다", () => showEnding('A', 'N2B_ignore'));
+
+            } else if (stepId === 'N2_VIDEO') {
+                titleEl.innerText = "🎬 통화 가로채기 발생 중...";
+                optionsEl.style.display = 'none';
+
+                contentEl.innerHTML = `
+                    <div style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 10px;">
+                        설치된 악성 앱이 번호를 감지하여 사기범 콜센터로 통화를 강제 전환합니다.
+                    </div>
+                    <div class="video-container">
+                        <button class="skip-btn" onclick="loadStep('N2X')">건너뛰기 ➔</button>
+                        <video id="interceptVid" autoplay playsinline muted>
+                            <source src="intercept_video.mp4" type="video/mp4">
+                            영상을 재생할 수 없습니다.
+                        </video>
+                    </div>
+                `;
+
+                const video = document.getElementById('interceptVid');
+                video.onended = function() {
+                    loadStep('N2X'); // 영상 종료 시 자연스럽게 N2X로 이동
+                };
 
             } else if (stepId === 'N2X') {
                 titleEl.innerText = "N2X. 가로채진 대표번호";
@@ -566,7 +607,7 @@
 
                 contentEl.innerHTML = `
                     <div style="padding: 10px; background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 4px; margin-bottom: 10px; font-size: 0.85rem; color: #e65100;">
-                        ⚠️ <strong>안내:</strong> 악성 앱에 의해 내가 입력한 검찰청 대표번호 통화가 사기범에게 가로채졌습니다.
+                        ⚠️ <strong>안내:</strong> 악성 앱에 의해 입력하신 번호가 사기범 조직으로 연결되었습니다.
                     </div>
                     <div class="tts-box">
                         <div>
@@ -653,7 +694,6 @@
             parent.appendChild(btn);
         }
 
-        // 최종 결말 출력 함수
         function showEnding(type, triggerNode) {
             window.speechSynthesis.cancel();
             document.getElementById('options-area').style.display = 'none';
@@ -692,9 +732,6 @@
                 title = "결말 D : 가로채기 피해";
                 summary = "당신의 확인 전화는 사기범이 받았습니다.";
                 expText = `
-                    <div style="background:#000; color:#fff; padding:15px; border-radius:6px; text-align:center; margin-bottom:10px;">
-                        🎬 [악성 앱 가로채기 설명 영상 - VID_01]
-                    </div>
                     당신은 올바른 확인 절차(112 확인)를 밟으셨습니다. 하지만 N2 단계에서 설치한 배송조회 앱(악성 앱)이 그 통화를 사기범에게 돌렸습니다.<br><br>
                     <strong>악성 앱이 설치된 휴대폰으로는 112도, 금융감독원도 믿을 수 없습니다. 반드시 다른 사람의 휴대폰으로 확인해야 합니다.</strong>
                 `;
