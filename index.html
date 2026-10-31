@@ -26,9 +26,7 @@
             line-height: 1.6;
         }
 
-        /* ----------------------------------
-           1. Intro Screen
-        ---------------------------------- */
+        /* 1. INTRO SCREEN */
         #intro-screen {
             display: flex;
             flex-direction: column;
@@ -75,9 +73,7 @@
             background-color: #f0f0f0;
         }
 
-        /* ----------------------------------
-           2. Wiki Screen
-        ---------------------------------- */
+        /* 2. WIKI SCREEN */
         #wiki-screen {
             display: none;
         }
@@ -128,7 +124,6 @@
             margin-bottom: 20px;
         }
 
-        /* Category Cards */
         .category-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -177,9 +172,7 @@
             cursor: not-allowed;
         }
 
-        /* ----------------------------------
-           3. Simulator Area
-        ---------------------------------- */
+        /* 3. SIMULATOR AREA */
         #simulator-section {
             display: none;
         }
@@ -198,6 +191,20 @@
             border-radius: 8px;
             padding: 20px;
             background: #fdfdfd;
+            position: relative;
+        }
+
+        /* 앱 설치 상태 표시 바 */
+        .app-status-bar {
+            display: none;
+            background: #ffebee;
+            color: #c62828;
+            border: 1px dashed #ef5350;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
 
         .tts-box {
@@ -239,15 +246,16 @@
 
         .img-preview {
             width: 100%;
-            max-width: 350px;
-            background: #e0e0e0;
-            border: 1px dashed #888;
-            border-radius: 6px;
-            padding: 20px;
-            text-align: center;
-            margin: 10px 0;
-            font-size: 0.9rem;
-            color: #555;
+            max-width: 400px;
+            margin: 10px auto;
+            display: block;
+        }
+
+        .img-preview img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #ddd;
         }
 
         .options-container {
@@ -274,7 +282,7 @@
             font-weight: 600;
         }
 
-        /* Ending Box Styles */
+        /* ENDING BOX STYLES */
         .result-box {
             display: none;
             margin-top: 20px;
@@ -357,6 +365,11 @@
                 <span class="back-to-list" onclick="backToList()">← 목록으로 돌아가기</span>
 
                 <div class="sim-box">
+                    <!-- 앱 설치 여부 알림 바 -->
+                    <div id="app-status-bar" class="app-status-bar">
+                        ⚠️ [체험 정보] 현재 스마트폰에 악성 배송조회 앱이 설치된 상태입니다. (전화 가로채기 활성화)
+                    </div>
+
                     <h2 id="step-title">N1. 집배원의 전화</h2>
                     
                     <!-- Dynamic Step Area -->
@@ -403,8 +416,18 @@
         function resetSimulator() {
             isAppInstalled = false;
             window.speechSynthesis.cancel();
+            document.getElementById('app-status-bar').style.display = 'none';
             document.getElementById('result-box').style.display = 'none';
             document.getElementById('options-area').style.display = 'flex';
+        }
+
+        function updateAppStatusBar() {
+            const statusBar = document.getElementById('app-status-bar');
+            if (isAppInstalled) {
+                statusBar.style.display = 'block';
+            } else {
+                statusBar.style.display = 'none';
+            }
         }
 
         function speakText(text) {
@@ -418,6 +441,8 @@
         // 시나리오 데이터 및 노드 로직
         function loadStep(stepId) {
             window.speechSynthesis.cancel();
+            updateAppStatusBar();
+
             const titleEl = document.getElementById('step-title');
             const contentEl = document.getElementById('step-content');
             const optionsEl = document.getElementById('options-area');
@@ -486,7 +511,9 @@
                 const scriptText = "방금 문자로 링크 보내드렸어요. 누르시면 배송조회 앱이 설치되는데, 거기에 주소랑 성함만 입력해 주시면 됩니다. 설치할 때 권한 허용 창이 뜨면 전부 허용 눌러주세요. 그래야 배송 알림이 정상적으로 갑니다. 등록 완료되면 자동으로 재배송 접수됩니다. 보통 내일 중으로 받으실 거예요. 수고하세요.";
 
                 contentEl.innerHTML = `
-                    <img src="KakaoTalk_20261029_233250430.png" alt="가짜 문자" style="max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0;">
+                    <div class="img-preview">
+                        <img src="img_01.png" alt="가짜 문자 메시지" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200?text=IMG_01+가짜문자+이미지';">
+                    </div>
                     <div class="tts-box">
                         <div>
                             <span class="speaker-badge">사기범 A (집배원 사칭)</span><br>
@@ -497,7 +524,7 @@
                 `;
 
                 addOption(optionsEl, "링크를 눌러 앱을 설치하고 주소를 입력한다", () => {
-                    isAppInstalled = true; // 악성 앱 설치 상태 설정
+                    isAppInstalled = true; // 앱 상태값 활성화
                     loadStep('N2B');
                 });
                 addOption(optionsEl, "앱은 좀 그런데요, 그냥 말로 불러드릴게요", () => loadStep('N2B'));
@@ -508,21 +535,29 @@
                 const callerNum = isAppInstalled ? "02-530-3114 (서울중앙지방검찰청)" : "02-1234-5678 (저장되지 않은 번호)";
 
                 contentEl.innerHTML = `
-                    <div style="padding: 15px; background: #fff; border: 1px solid #ccc; border-radius: 6px; text-align: center; margin: 15px 0;">
-                        <p style="font-size: 0.85rem; color: #666;">📲 수신 전화 화면</p>
-                        <h3 style="color: #0275d8; margin: 5px 0;">${callerNum}</h3>
+                    <div style="padding: 20px; background: #fff; border: 1px solid #ccc; border-radius: 6px; text-align: center; margin: 15px 0;">
+                        <p style="font-size: 0.85rem; color: #666;">📲 전화 수신 화면</p>
+                        <h3 style="color: #0275d8; margin: 8px 0; font-size: 1.3rem;">${callerNum}</h3>
                         <small style="color: #888;">(집배원과의 통화가 끝나고 잠시 후 수신됨)</small>
                     </div>
                 `;
 
-                addOption(optionsEl, "전화를 받는다", () => loadStep('N3'));
-                addOption(optionsEl, "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다", () => {
+                addOption(optionsEl, "전화를 받는다", () => {
                     if (isAppInstalled) {
-                        loadStep('N2X'); // 앱이 설치되어 가로채짐
+                        loadStep('N2X'); // 앱이 설치된 경우 가로채진 번호 노드로 이동
                     } else {
-                        showEnding('A', 'N2B_direct');
+                        loadStep('N3');  // 앱이 없는 경우 정상 N3 이동
                     }
                 });
+
+                addOption(optionsEl, "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다", () => {
+                    if (isAppInstalled) {
+                        loadStep('N2X'); // 앱이 전화를 가로채 사기범에게 연결
+                    } else {
+                        showEnding('A', 'N2B_direct_success'); // 앱 없으면 진짜 검찰청 안내 후 사건 없음 확인
+                    }
+                });
+
                 addOption(optionsEl, "받지 않는다", () => showEnding('A', 'N2B_ignore'));
 
             } else if (stepId === 'N2X') {
@@ -530,6 +565,9 @@
                 const scriptText = "네, 서울중앙지방검찰청입니다. 성함 확인해 보니 금융범죄수사팀 사건이 있으시네요. 담당 수사관 연결해 드리겠습니다.";
 
                 contentEl.innerHTML = `
+                    <div style="padding: 10px; background: #fff3e0; border: 1px solid #ffe0b2; border-radius: 4px; margin-bottom: 10px; font-size: 0.85rem; color: #e65100;">
+                        ⚠️ <strong>안내:</strong> 악성 앱에 의해 내가 입력한 검찰청 대표번호 통화가 사기범에게 가로채졌습니다.
+                    </div>
                     <div class="tts-box">
                         <div>
                             <span class="speaker-badge">사기범 C (검찰청 안내 사칭)</span><br>
@@ -539,7 +577,7 @@
                     </div>
                 `;
 
-                addOption(optionsEl, "수사관 연결 대기하기 (자동 진행)", () => loadStep('N3'));
+                addOption(optionsEl, "수사관 연결 대기하기 (다음 통화 진행)", () => loadStep('N3'));
 
             } else if (stepId === 'N3') {
                 titleEl.innerText = "N3. 검찰 수사관 연락";
@@ -565,7 +603,9 @@
                 const scriptText = "지금 메신저로 보내드린 게 법원에서 발부된 구속영장 사본입니다. 원래는 바로 집행해야 하는데, 명의를 도용당한 피해자일 가능성도 있어서요. 협조만 잘해 주시면 약식조사로 마무리할 수 있습니다. 그러려면 보유하신 자산이 범죄수익과 무관한지 확인하는 절차가 필요합니다.";
 
                 contentEl.innerHTML = `
-                    <div class="img-preview">📜 [메신저 전송 - 가짜 구속영장 IMG_02]<br><small>"피의자 구속영장 사본..."</small></div>
+                    <div class="img-preview">
+                        <img src="img_02.png" alt="가짜 구속영장" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x250?text=IMG_02+가짜영장+이미지';">
+                    </div>
                     <div class="tts-box">
                         <div>
                             <span class="speaker-badge">사기범 B (검찰 수사관 사칭)</span><br>
@@ -631,13 +671,16 @@
                 title = "결말 A : 즉시 차단";
                 summary = "미끼를 물지 않았습니다.";
                 expText = "집배원은 배송지를 묻지 않고, 우체국은 문자 링크로 앱 설치를 안내하지 않습니다. 의심스러울 때 끊고 공식 번호로 직접 확인한 것이 완벽한 정답이었습니다.";
+                if (isAppInstalled) {
+                    extraNotice = "<br><br>⚠️ <strong>주의:</strong> 통화는 잘 종료하셨지만 N2 단계에서 악성 앱이 설치된 상태입니다. 휴대폰 초기화나 백신 앱 점검이 필요합니다.";
+                }
             } else if (type === 'B') {
                 cssClass = "ending-B";
                 title = "결말 B : 위기 탈출";
                 summary = "마지막 순간에 빠져나왔습니다.";
                 expText = "끊고 직접 확인한 판단이 피해를 막았습니다. 수사기관은 절대로 전화/메신저로 서류를 보내거나 돈을 옮기라고 요구하지 않습니다.";
                 if (triggerNode === 'N5_family_phone' && isAppInstalled) {
-                    extraNotice = "<br><br>⚠️ <strong>주의:</strong> 이전 단계에서 설치된 악성 앱이 있습니다. 타인의 휴대폰으로 신고한 것은 훌륭했으나, 본인 휴대폰은 반드시 초기화하거나 악성 앱을 삭제해야 합니다.";
+                    extraNotice = "<br><br>⚠️ <strong>주의:</strong> 타인의 휴대폰을 빌려 112에 확인하여 가로채기를 피하고 안전하게 탈출하셨습니다! 내 휴대폰의 악성 앱은 꼭 삭제하세요.";
                 }
             } else if (type === 'C') {
                 cssClass = "ending-C";
@@ -652,8 +695,8 @@
                     <div style="background:#000; color:#fff; padding:15px; border-radius:6px; text-align:center; margin-bottom:10px;">
                         🎬 [악성 앱 가로채기 설명 영상 - VID_01]
                     </div>
-                    당신은 올바른 확인 절차(112 확인)를 밟았습니다. 하지만 N2 단계에서 설치한 악성 앱이 그 전화를 사기범에게 돌렸습니다.<br>
-                    <strong>앱이 설치된 휴대폰으로는 112도, 금융감독원도 믿을 수 없습니다. 반드시 다른 사람의 휴대폰으로 확인해야 합니다.</strong>
+                    당신은 올바른 확인 절차(112 확인)를 밟으셨습니다. 하지만 N2 단계에서 설치한 배송조회 앱(악성 앱)이 그 통화를 사기범에게 돌렸습니다.<br><br>
+                    <strong>악성 앱이 설치된 휴대폰으로는 112도, 금융감독원도 믿을 수 없습니다. 반드시 다른 사람의 휴대폰으로 확인해야 합니다.</strong>
                 `;
             }
 
