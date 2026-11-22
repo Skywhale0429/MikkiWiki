@@ -771,7 +771,7 @@
                 title = "결말 A : 즉시 차단";
                 summary = "미끼를 물지 않았습니다.";
                 expText = "집배원은 배송지를 묻지 않고, 우체국은 문자 링크로 앱 설치를 안내하지 않습니다. 의심스러울 때 끊고 공식 번호로 직접 확인한 것이 완벽한 정답이었습니다.";
-                sourceText = "[결말 A 출처 입력 칸 - 예: 우정사업본부 보이스피싱 예방 안내]";
+                sourceText = "[SBS Biz, 집배원 사칭 보이스피싱 주의 : https://biz.sbs.co.kr/amp/article/20000205467]";
                 if (isAppInstalled) {
                     extraNotice = "<br><br>⚠️ <strong>주의:</strong> 통화는 잘 종료하셨지만 N2 단계에서 악성 앱이 설치된 상태입니다. 휴대폰 초기화나 백신 앱 점검이 필요합니다.";
                 }
@@ -780,7 +780,7 @@
                 title = "결말 B : 위기 탈출";
                 summary = "마지막 순간에 빠져나왔습니다.";
                 expText = "끊고 직접 확인한 판단이 피해를 막았습니다. 수사기관은 절대로 전화/메신저로 서류를 보내거나 돈을 옮기라고 요구하지 않습니다.";
-                sourceText = "[결말 B 출처 입력 칸 - 예: 검찰청/경찰청 사칭 수법 안내]";
+                sourceText = "[노컷뉴스, 검찰 사칭 가짜 구속영장 위조 : https://www.nocutnews.co.kr/news/5440512]";
                 if (triggerNode === 'N5_family_phone' && isAppInstalled) {
                     extraNotice = "<br><br>⚠️ <strong>주의:</strong> 타인의 휴대폰을 빌려 112에 확인하여 가로채기를 피하고 안전하게 탈출하셨습니다! 내 휴대폰의 악성 앱은 꼭 삭제하세요.";
                 }
@@ -789,7 +789,7 @@
                 title = "결말 C : 송금 피해";
                 summary = "전 재산이 사라졌습니다.";
                 expText = "'국가안전계좌'는 존재하지 않습니다. 검찰, 경찰, 금융감독원 그 누구도 돈을 옮기라고 요구하지 않습니다. 실제로 송금했다면 즉시 112나 금융회사에 지급정지를 요청해야 합니다.";
-                sourceText = "[결말 C 출처 입력 칸 - 예: 금융감독원 보이스피싱 지킴이]";
+                sourceText = "[법률신문, 수사기관 사칭 보이스피싱 일당 기소 : https://www.lawtimes.co.kr/news/194457]";
             } else if (type === 'D') {
                 cssClass = "ending-D";
                 title = "결말 D : 가로채기 피해";
@@ -798,7 +798,7 @@
                     당신은 올바른 확인 절차(112 확인)를 밟으셨습니다. 하지만 N2 단계에서 설치한 배송조회 앱(악성 앱)이 그 통화를 사기범에게 돌렸습니다.<br><br>
                     <strong>악성 앱이 설치된 휴대폰으로는 112도, 금융감독원도 믿을 수 없습니다. 반드시 다른 사람의 휴대폰으로 확인해야 합니다.</strong>
                 `;
-                sourceText = "[결말 D 출처 입력 칸 - 예: 경찰청 악성 앱 전화 가로채기 주의보]";
+                sourceText = "[법률신문, 수사기관 사칭 보이스피싱 일당 기소 : https://www.lawtimes.co.kr/news/194457]";
             }
 
             resultBox.className = `result-box ${cssClass}`;
