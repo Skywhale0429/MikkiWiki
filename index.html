@@ -589,10 +589,10 @@
                 // 선택지 1 : "전화를 받는다" -> 앱 설치 여부와 상관없이 N3로 이동 (앱 설치 상태는 결말 판정에만 사용)
                 addOption(optionsEl, "전화를 받는다", () => loadStep('N3'));
 
-                // 선택지 2 : "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다" -> 오직 이 선택지에서만 가로채기 영상 재생!
+                // 선택지 2 : "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다" -> 앱 설치 시 N2X, 미설치 시 결말 A
                 addOption(optionsEl, "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다", () => {
                     if (isAppInstalled) {
-                        loadStep('N2_VIDEO');
+                        loadStep('N2X');
                     } else {
                         showEnding('A', 'N2B_direct_success');
                     }
@@ -601,28 +601,6 @@
                 // 선택지 3 : "받지 않는다" -> 결말 A
                 addOption(optionsEl, "받지 않는다", () => showEnding('A', 'N2B_ignore'));
 
-            } else if (stepId === 'N2_VIDEO') {
-                titleEl.innerText = "🎬 통화 가로채기 발생 중...";
-                optionsEl.style.display = 'none';
-
-                contentEl.innerHTML = `
-                    <div style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 10px;">
-                        설치된 악성 앱이 번호를 감지하여 사기범 콜센터로 통화를 강제 전환합니다.
-                    </div>
-                    <div class="video-container">
-                        <button class="skip-btn" onclick="loadStep('N2X')">건너뛰기 ➔</button>
-                        <video id="interceptVid" autoplay playsinline controls style="width: 100%;">
-                            <source src="intercept_video.mp4" type="video/mp4">
-                            영상을 재생할 수 없습니다.
-                        </video>
-                    </div>
-                `;
-
-                const video = document.getElementById('interceptVid');
-                video.play().catch(e => console.log("자동재생 제한:", e));
-                video.onended = function() {
-                    loadStep('N2X');
-                };
 
             } else if (stepId === 'N2X') {
                 titleEl.innerText = "N2X. 가로채진 대표번호";
@@ -722,12 +700,53 @@
             parent.appendChild(btn);
         }
 
-        function showEnding(type, triggerNode) {
-            stopAllSound();
-            document.getElementById('options-area').style.display = 'none';
-            const resultBox = document.getElementById('result-box');
-            resultBox.style.display = 'block';
+function showEnding(type, triggerNode, afterVideo = false) {
+    stopAllSound();
+    document.getElementById('options-area').style.display = 'none';
+    const resultBox = document.getElementById('result-box');
 
+    // 결말 D: 가로채기 영상 먼저 재생
+    if (type === 'D'&& !afterVideo) {
+        resultBox.style.display = 'block';
+        resultBox.className = 'result-box'; 
+        
+        resultBox.innerHTML = `
+            <h2>🎬 통화 가로채기 발생 중...</h2>
+
+            <video id="interceptVid"
+                   playsinline
+                   controls
+                   style="width: 100%; max-width: 600px; display: block; margin: 15px auto;">
+                <source src="VID_01.mp4" type="video/mp4">
+                브라우저가 동영상을 지원하지 않습니다.
+            </video>
+
+            <button id="skipVideoBtn" class="restart-btn">
+                ⏭ 영상 건너뛰기
+            </button>
+        `;
+
+        const video = document.getElementById('interceptVid');
+        const skipBtn = document.getElementById('skipVideoBtn');
+
+        // 영상 종료 또는 건너뛰기 시 결말 D 표시
+        let endingShown = false;
+
+        function finishVideo() {
+            if (endingShown) return;
+            endingShown = true;
+            showEnding('D', triggerNode, true);
+        }
+
+        video.onended = finishVideo;
+        skipBtn.onclick = finishVideo;
+
+        video.play().catch(e => console.log("자동재생 제한:", e));
+
+        return;
+    }
+
+    resultBox.style.display = 'block';
             let title = "";
             let summary = "";
             let expText = "";
