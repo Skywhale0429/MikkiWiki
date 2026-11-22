@@ -206,6 +206,17 @@
             margin-bottom: 15px;
         }
 
+        /* [요구사항 2] 실제 사례 재구성 안내 배너 스타일 */
+        .case-notice {
+            background-color: #f1f3f5;
+            border-left: 4px solid var(--wiki-green);
+            color: #495057;
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            margin: 12px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
         .tts-box {
             background: #eef8f7;
             border: 1px solid var(--wiki-green);
@@ -257,36 +268,6 @@
             border: 1px solid #ddd;
         }
 
-        .video-container {
-            width: 100%;
-            max-width: 360px;
-            margin: 15px auto;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        .video-container video {
-            width: 100%;
-            display: block;
-        }
-
-        .skip-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.4);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            z-index: 10;
-        }
-
         .options-container {
             display: flex;
             flex-direction: column;
@@ -331,6 +312,41 @@
             border-radius: 6px;
             margin-top: 15px;
             font-size: 0.92rem;
+        }
+
+        /* [요구사항 1] 근거 및 출처 표기 영역 스타일 */
+        .source-line {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed #ccc;
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        /* [요구사항 3] 공식 안내 페이지 링크 버튼 스타일 */
+        .official-links {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .official-link-btn {
+            display: inline-block;
+            background-color: #ffffff;
+            color: #222;
+            border: 1px solid #bbb;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .official-link-btn:hover {
+            background-color: #f1f3f5;
+            border-color: #666;
         }
 
         .restart-btn {
@@ -444,7 +460,6 @@
         }
 
         function updateAppStatusBar() {
-            // 기획안: 앱 설치 여부는 체험자에게 표시하지 않음 (결말 판정에만 사용)
             document.getElementById('app-status-bar').style.display = 'none';
         }
 
@@ -456,7 +471,6 @@
             window.speechSynthesis.cancel();
         }
 
-        // 통합 음성 재생 함수 (음성 파일 우선 재생 -> 없을 시 브라우저 TTS)
         function playAudioOrTTS(audioUrl, textScript) {
             stopAllSound();
 
@@ -579,6 +593,8 @@
                 const callerNum = isAppInstalled ? "02-530-3114 (서울중앙지방검찰청)" : "02-1234-5678 (저장되지 않은 번호)";
 
                 contentEl.innerHTML = `
+                    <!-- [요구사항 2] 실제 사례 재구성 안내 문구 -->
+                    <div class="case-notice">📌 실제 사례를 바탕으로 재구성한 장면입니다.</div>
                     <div style="padding: 20px; background: #fff; border: 1px solid #ccc; border-radius: 6px; text-align: center; margin: 15px 0;">
                         <p style="font-size: 0.85rem; color: #666;">📲 전화 수신 화면</p>
                         <h3 style="color: #0275d8; margin: 8px 0; font-size: 1.3rem;">${callerNum}</h3>
@@ -586,10 +602,8 @@
                     </div>
                 `;
 
-                // 선택지 1 : "전화를 받는다" -> 앱 설치 여부와 상관없이 N3로 이동 (앱 설치 상태는 결말 판정에만 사용)
                 addOption(optionsEl, "전화를 받는다", () => loadStep('N3'));
 
-                // 선택지 2 : "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다" -> 앱 설치 시 N2X, 미설치 시 결말 A
                 addOption(optionsEl, "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다", () => {
                     if (isAppInstalled) {
                         loadStep('N2X');
@@ -598,9 +612,7 @@
                     }
                 });
 
-                // 선택지 3 : "받지 않는다" -> 결말 A
                 addOption(optionsEl, "받지 않는다", () => showEnding('A', 'N2B_ignore'));
-
 
             } else if (stepId === 'N2X') {
                 titleEl.innerText = "N2X. 가로채진 대표번호";
@@ -628,6 +640,8 @@
                 const audioUrl = "";
 
                 contentEl.innerHTML = `
+                    <!-- [요구사항 2] 실제 사례 재구성 안내 문구 -->
+                    <div class="case-notice">📌 실제 사례를 바탕으로 재구성한 장면입니다.</div>
                     <div class="tts-box">
                         <div>
                             <span class="speaker-badge">사기범 B (검찰 수사관 사칭)</span><br>
@@ -669,7 +683,6 @@
             } else if (stepId === 'N5') {
                 titleEl.innerText = "N5. 국가안전계좌 이체 요구";
                 const scriptText = "확인 절차는 간단합니다. 보유하신 예금을 금융감독원이 관리하는 국가안전계좌로 잠시 이체해 주시면, 범죄수익 여부를 확인한 뒤 24시간 안에 전액 돌려드립니다. 이 내용은 가족분들께도 알리시면 안 됩니다. 30분 안에 진행되지 않으면 영장이 그대로 집행됩니다.";
-                // N5 단계용 음성 파일 경로 지정
                 const audioUrl = "n5_voice.mp3"; 
 
                 contentEl.innerHTML = `
@@ -700,56 +713,56 @@
             parent.appendChild(btn);
         }
 
-function showEnding(type, triggerNode, afterVideo = false) {
-    stopAllSound();
-    document.getElementById('options-area').style.display = 'none';
-    const resultBox = document.getElementById('result-box');
+        function showEnding(type, triggerNode, afterVideo = false) {
+            stopAllSound();
+            document.getElementById('options-area').style.display = 'none';
+            const resultBox = document.getElementById('result-box');
 
-    // 결말 D: 가로채기 영상 먼저 재생
-    if (type === 'D'&& !afterVideo) {
-        resultBox.style.display = 'block';
-        resultBox.className = 'result-box'; 
-        
-        resultBox.innerHTML = `
-            <h2>🎬 통화 가로채기 발생 중...</h2>
+            // 결말 D: 가로채기 영상 먼저 재생
+            if (type === 'D' && !afterVideo) {
+                resultBox.style.display = 'block';
+                resultBox.className = 'result-box'; 
+                
+                resultBox.innerHTML = `
+                    <h2>🎬 통화 가로채기 발생 중...</h2>
 
-            <video id="interceptVid"
-                   playsinline
-                   controls
-                   style="width: 100%; max-width: 600px; display: block; margin: 15px auto;">
-                <source src="VID_01.mp4" type="video/mp4">
-                브라우저가 동영상을 지원하지 않습니다.
-            </video>
+                    <video id="interceptVid"
+                           playsinline
+                           controls
+                           style="width: 100%; max-width: 600px; display: block; margin: 15px auto;">
+                        <source src="VID_01.mp4" type="video/mp4">
+                        브라우저가 동영상을 지원하지 않습니다.
+                    </video>
 
-            <button id="skipVideoBtn" class="restart-btn">
-                ⏭ 영상 건너뛰기
-            </button>
-        `;
+                    <button id="skipVideoBtn" class="restart-btn">
+                        ⏭ 영상 건너뛰기
+                    </button>
+                `;
 
-        const video = document.getElementById('interceptVid');
-        const skipBtn = document.getElementById('skipVideoBtn');
+                const video = document.getElementById('interceptVid');
+                const skipBtn = document.getElementById('skipVideoBtn');
 
-        // 영상 종료 또는 건너뛰기 시 결말 D 표시
-        let endingShown = false;
+                let endingShown = false;
 
-        function finishVideo() {
-            if (endingShown) return;
-            endingShown = true;
-            showEnding('D', triggerNode, true);
-        }
+                function finishVideo() {
+                    if (endingShown) return;
+                    endingShown = true;
+                    showEnding('D', triggerNode, true);
+                }
 
-        video.onended = finishVideo;
-        skipBtn.onclick = finishVideo;
+                video.onended = finishVideo;
+                skipBtn.onclick = finishVideo;
 
-        video.play().catch(e => console.log("자동재생 제한:", e));
+                video.play().catch(e => console.log("자동재생 제한:", e));
 
-        return;
-    }
+                return;
+            }
 
-    resultBox.style.display = 'block';
+            resultBox.style.display = 'block';
             let title = "";
             let summary = "";
             let expText = "";
+            let sourceText = ""; // [요구사항 1] 결말별 근거/출처 텍스트 변수
             let cssClass = "";
             let extraNotice = "";
 
@@ -758,6 +771,7 @@ function showEnding(type, triggerNode, afterVideo = false) {
                 title = "결말 A : 즉시 차단";
                 summary = "미끼를 물지 않았습니다.";
                 expText = "집배원은 배송지를 묻지 않고, 우체국은 문자 링크로 앱 설치를 안내하지 않습니다. 의심스러울 때 끊고 공식 번호로 직접 확인한 것이 완벽한 정답이었습니다.";
+                sourceText = "[결말 A 출처 입력 칸 - 예: 우정사업본부 보이스피싱 예방 안내]";
                 if (isAppInstalled) {
                     extraNotice = "<br><br>⚠️ <strong>주의:</strong> 통화는 잘 종료하셨지만 N2 단계에서 악성 앱이 설치된 상태입니다. 휴대폰 초기화나 백신 앱 점검이 필요합니다.";
                 }
@@ -766,6 +780,7 @@ function showEnding(type, triggerNode, afterVideo = false) {
                 title = "결말 B : 위기 탈출";
                 summary = "마지막 순간에 빠져나왔습니다.";
                 expText = "끊고 직접 확인한 판단이 피해를 막았습니다. 수사기관은 절대로 전화/메신저로 서류를 보내거나 돈을 옮기라고 요구하지 않습니다.";
+                sourceText = "[결말 B 출처 입력 칸 - 예: 검찰청/경찰청 사칭 수법 안내]";
                 if (triggerNode === 'N5_family_phone' && isAppInstalled) {
                     extraNotice = "<br><br>⚠️ <strong>주의:</strong> 타인의 휴대폰을 빌려 112에 확인하여 가로채기를 피하고 안전하게 탈출하셨습니다! 내 휴대폰의 악성 앱은 꼭 삭제하세요.";
                 }
@@ -774,6 +789,7 @@ function showEnding(type, triggerNode, afterVideo = false) {
                 title = "결말 C : 송금 피해";
                 summary = "전 재산이 사라졌습니다.";
                 expText = "'국가안전계좌'는 존재하지 않습니다. 검찰, 경찰, 금융감독원 그 누구도 돈을 옮기라고 요구하지 않습니다. 실제로 송금했다면 즉시 112나 금융회사에 지급정지를 요청해야 합니다.";
+                sourceText = "[결말 C 출처 입력 칸 - 예: 금융감독원 보이스피싱 지킴이]";
             } else if (type === 'D') {
                 cssClass = "ending-D";
                 title = "결말 D : 가로채기 피해";
@@ -782,6 +798,7 @@ function showEnding(type, triggerNode, afterVideo = false) {
                     당신은 올바른 확인 절차(112 확인)를 밟으셨습니다. 하지만 N2 단계에서 설치한 배송조회 앱(악성 앱)이 그 통화를 사기범에게 돌렸습니다.<br><br>
                     <strong>악성 앱이 설치된 휴대폰으로는 112도, 금융감독원도 믿을 수 없습니다. 반드시 다른 사람의 휴대폰으로 확인해야 합니다.</strong>
                 `;
+                sourceText = "[결말 D 출처 입력 칸 - 예: 경찰청 악성 앱 전화 가로채기 주의보]";
             }
 
             resultBox.className = `result-box ${cssClass}`;
@@ -792,6 +809,10 @@ function showEnding(type, triggerNode, afterVideo = false) {
                 <div class="explanation-box">
                     <strong>📖 시나리오 해설 및 분석</strong>
                     <p style="margin-top: 5px;">${expText} ${extraNotice}</p>
+                    <!-- [요구사항 1] 근거 및 출처 줄 -->
+                    <div class="source-line">
+                        <strong>📚 근거 및 출처:</strong> <span id="source-content">${sourceText}</span>
+                    </div>
                 </div>
 
                 <div style="margin-top: 15px; font-size: 0.9rem;">
@@ -800,6 +821,12 @@ function showEnding(type, triggerNode, afterVideo = false) {
                         <li>출처가 불분명한 문자 메시지의 URL 링크는 절대 누르지 않습니다.</li>
                         <li>의심스러운 전화를 받으면 즉시 끊고, 반드시 <strong>다른 사람의 휴대폰</strong>을 이용해 해당 기관의 공식 번호로 확인하세요.</li>
                     </ul>
+                    <!-- [요구사항 3] 경찰청 및 금융감독원 공식 안내 페이지 링크 -->
+                    <div class="official-links">
+                        <a class="official-link-btn" href="https://www.police.go.kr" target="_blank" rel="noopener noreferrer">🚓 경찰청 공식 홈페이지 바로가기</a>
+                        <a class="official-link-btn" href="https://www.counterscam112.go.kr" target="_blank" rel="noopener noreferrer">📞 전기통신금융사기 통합신고대응센터 (112)</a>
+                        <a class="official-link-btn" href="https://www.fss.or.kr" target="_blank" rel="noopener noreferrer">🏦 금융감독원 공식 홈페이지 바로가기</a>
+                    </div>
                 </div>
 
                 <button class="restart-btn" onclick="startScenario()">🔄 시나리오 다시 하기</button>
