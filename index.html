@@ -444,12 +444,8 @@
         }
 
         function updateAppStatusBar() {
-            const statusBar = document.getElementById('app-status-bar');
-            if (isAppInstalled) {
-                statusBar.style.display = 'block';
-            } else {
-                statusBar.style.display = 'none';
-            }
+            // 기획안: 앱 설치 여부는 체험자에게 표시하지 않음 (결말 판정에만 사용)
+            document.getElementById('app-status-bar').style.display = 'none';
         }
 
         function stopAllSound() {
@@ -590,14 +586,8 @@
                     </div>
                 `;
 
-                // 선택지 1 : "전화를 받는다" -> 앱 설치 시 영상 없이 바로 N2X로 이동!
-                addOption(optionsEl, "전화를 받는다", () => {
-                    if (isAppInstalled) {
-                        loadStep('N2X'); 
-                    } else {
-                        loadStep('N3');
-                    }
-                });
+                // 선택지 1 : "전화를 받는다" -> 앱 설치 여부와 상관없이 N3로 이동 (앱 설치 상태는 결말 판정에만 사용)
+                addOption(optionsEl, "전화를 받는다", () => loadStep('N3'));
 
                 // 선택지 2 : "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다" -> 오직 이 선택지에서만 가로채기 영상 재생!
                 addOption(optionsEl, "받지 않고 검찰청 대표번호를 찾아 내 휴대폰으로 직접 건다", () => {
